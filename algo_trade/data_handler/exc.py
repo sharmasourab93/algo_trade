@@ -1,0 +1,2 @@
+class InvalidTicker(Exception):
+    pass

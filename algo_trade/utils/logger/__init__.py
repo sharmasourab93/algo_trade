@@ -1,0 +1,1 @@
+from algo_trade.utils.logger.log_configurator import LogConfig
