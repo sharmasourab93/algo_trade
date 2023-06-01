@@ -1,5 +1,6 @@
 from os import getenv
 import asyncio
+import pandas as pd
 from time import perf_counter
 from functools import wraps
 from algo_trade.utils.logger.log_configurator import LogConfig
@@ -26,7 +27,6 @@ def compute_execution_time(method):
 
 
 def make_async(method):
-    @wraps(method)
     async def execute(*args, **kwargs):
         return method(*args, **kwargs)
 
@@ -40,6 +40,9 @@ class AsyncLoggingMeta(type):
         enable_async = bool(MAKE_ASYNC)
         enable_logging = bool(ENABLE_LOGGING)
         enable_time = bool(TIME_COMP)
+
+        pd.set_option('chained_assignment', None)
+        pd.set_option('copy_on_write', True)
 
         if enable_logging:
             LogConfig.setup_logging("", LOG_LEVEL)

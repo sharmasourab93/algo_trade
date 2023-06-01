@@ -7,7 +7,7 @@ TIME_ZONE = ZoneInfo("Asia/Kolkata")
 TZ = timezone("Asia/Kolkata")
 DATE = date.today()
 TODAY = datetime.now(tz=TIME_ZONE).date()
-TIME_OFFSET = "1800"
+TIME_OFFSET = "1600"
 TIME_OFFSET_FMT = "%H%M"
 TIME_CUTOFF = datetime.strptime(TIME_OFFSET, TIME_OFFSET_FMT).time()
 DATE_FMT = "%d-%b-%Y"
