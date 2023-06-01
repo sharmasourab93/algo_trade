@@ -24,7 +24,7 @@ class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
     def nse_release_event(self, from_date: date, to_date: date,
                           symbol: str = None):
         """ Gets you release dates for all stocks. """
-        
+
         url, dt_format = self.nse_map.nse_api_release_calendar
 
         from_date = from_date.strftime(dt_format)
@@ -159,7 +159,8 @@ class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
 
         data = self.download_tools.download_data(url, self.headers)
 
-        self.cache[bhav_key] = {"data": data, "time_stamp": date_str}
+        self.cache[bhav_key] = {"data": data, "time_stamp":
+            date_str.strftime(DATE_FMT).upper()}
 
         self.logger.debug("{0} Cached for {1}.".format(bhav_key, date_str))
 
@@ -301,7 +302,7 @@ class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
         """ Gets you the quote of the selected index.  """
 
         url = self.nse_map.nse_quote_indices.format(symbol.upper())
-        # cookies = self.download_tools.get_cookies(url, self.headers)
+        cookies = self.download_tools.get_cookies(url, self.headers)
         data = self.download_tools.get_request_api(url, self.headers, cookies)
         data = data.json()
 
@@ -331,7 +332,7 @@ class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
         """ Method to retrieve VIX data. """
 
         vix_url = self.nse_map.nse_india_vix.format(from_date, to_date)
-        # cookies = self.download_tools.get_cookies(vix_url, self.headers)
+        cookies = self.download_tools.get_cookies(vix_url, self.headers)
         data = self.download_tools.get_request_api(vix_url, self.headers,
                                                    cookies)
         # Response data manipulation.
