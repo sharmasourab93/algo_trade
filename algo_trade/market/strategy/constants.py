@@ -1,0 +1,19 @@
+CPR_STRATEGY_COLUMNS = [
+    "index",
+    "symbol",
+    "lotsize",
+    "industry",
+    "sectoral_index",
+    "open",
+    "high",
+    "low",
+    "close",
+    "pct_change",
+    "volume",
+    "cpr_width",
+    "cpr",
+    "con_range",
+    "purpose",
+    "priority_stocks",
+    "timestamp"
+]
