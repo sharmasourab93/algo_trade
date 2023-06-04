@@ -80,3 +80,19 @@ SELECT_COLUMNS_FOR_INDEX_REPORT = [
     "monthly_higher_range",
     "monthly_lower_range"
 ]
+
+# Swing Trading Section
+SWING_NSE_LIMIT = 1000
+SWING_FNO_FILTER = False
+SWING_EARNINGS_DELTA = 15
+SWING_MIN_SHARE_PRICE = 300.0
+SWING_MIN_PCT_CHANGE = 5.0
+
+# Strategy 1 - BIGBANG
+SWING_VOLUME_DIFF = 10
+SWING_VOLUME_BIGBANG_ORDER = ["VolumeDiff"]
+
+# Strategy 3 - Buying Pull backs
+SWING_BUYING_PULLBACKS = [""]
+
+STOCK_MODIFICATION = {"MOTHERSUMI": "MOTHERSON"}
