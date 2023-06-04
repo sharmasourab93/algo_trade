@@ -21,7 +21,7 @@ import numpy as np
 import asyncio
 from algo_trade.market.strategy.scanners.scanner_generics.swing_generic import \
     SwingTradingGeneric
-from algo_trade.utils.constants import (
+from algo_trade.market.strategy.constants import (
     SWING_MIN_PCT_CHANGE,
     SWING_MIN_SHARE_PRICE,
     SWING_VOLUME_DIFF,
