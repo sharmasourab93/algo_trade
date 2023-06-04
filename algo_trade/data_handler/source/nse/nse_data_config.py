@@ -59,6 +59,17 @@ class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
             "NSE Option Chain: Key-{0}, Symbol-{1}".format(key, symbol))
         return data.json()
 
+    def get_nse_all_indices(self) -> DataFrame:
+        """ Gets you a list of all the reports. """
+
+        url = self.nse_map.nse_indices
+        cookies = self.download_tools.get_cookies(url, self.headers)
+        data = self.download_tools.get_request_api(url,
+                                                   self.nse_map.nse_headers_simple,
+                                                   cookies)
+
+        return DataFrame(data.json()['data'])
+
     def nse_symbol_info(self, key: str, symbol: str) -> dict:
 
         """ Gets you the quote for the select Stock or Option Ticker. """
@@ -69,7 +80,7 @@ class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
         else:
             url = self.nse_map.nse_option_index(symbol)
 
-        # cookies = self.download_tools.get_cookies(url, self.headers)
+        cookies = self.download_tools.get_cookies(url, self.headers)
         data = self.download_tools.get_request_api(url,
                                                    self.nse_map.nse_headers_advanced,
                                                    cookies)
