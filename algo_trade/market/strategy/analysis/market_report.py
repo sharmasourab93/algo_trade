@@ -1,6 +1,8 @@
 from typing import Dict, List
 from algo_trade.data_handler import DataHandler
 from algo_trade.utils.meta import AsyncLoggingMeta
+from algo_trade.market.strategy.analysis.spot_index_analysis import \
+    DailyIntradayIndicesReport
 
 
 class MarketReport(metaclass=AsyncLoggingMeta):
@@ -51,13 +53,12 @@ class MarketReport(metaclass=AsyncLoggingMeta):
         index_movers = 100
         data = self.data_handler.processed_bhavcopy(100)
         data = data[["symbol", "pct_change", "purpose"]].round(2)
-        top_5 = data.sort_values(by=["pct_change"]).head(5)
+        top_5 = data.sort_values(by=["pct_change"], ascending=False).head(5)
         top_5["flag"] = top_5.purpose.apply(lambda x: -1 if x != "-" else 1)
         top_5 = top_5[["symbol", "pct_change", "flag"]]
         top_5 = top_5.to_dict(orient='records')
 
-        bottom_5 = data.sort_values(by=["pct_change"],
-                                    ascending=False).head(5)
+        bottom_5 = data.sort_values(by=["pct_change"]).head(5)
         bottom_5["flag"] = bottom_5.purpose.apply(lambda x: -1 if x != "-"
         else 1)
         bottom_5 = bottom_5[["symbol", "pct_change", "flag"]]
@@ -68,13 +69,25 @@ class MarketReport(metaclass=AsyncLoggingMeta):
 
         return result
 
+    def post_market_indices_report(self):
+        """
+        Indices report with Day, week and month High Low range and CPR
+        analysis.
+        """
+
+        obj = DailyIntradayIndicesReport()
+
+        data = obj.indices_report()
+
+        return data
+
     def get_indices(self) -> List[list]:
         """
         Runs you through a summary chief tradeable indices.
         :return:
         """
-        indices = self.data_handler.run_quote_index()
-        indices = indices[["index", "close", "change", "pct_change"]].round(2)
+        indices = self.data_handler.yf_run_all_indices()
+        indices = indices[["symbol", "close", "pct_change"]].round(2)
 
         return indices.to_dict(orient='split')['data']
 
@@ -93,13 +106,18 @@ class MarketReport(metaclass=AsyncLoggingMeta):
 
         return report
 
+    def post_market_report(self):
+        """ Post Market Report with Analysis. """
+
+        index_data = self.post_market_indices_report()
+
     def day_close_in_text(self) -> str:
 
         report = self.day_closing_report()
 
         title = "Trade Like a Yogi: Market Closing Report for {0}".format(
             self.prev_day)
-        indices_text = '\n'.join(['{0} {1} {3}%({2})'.format(*i) for i in
+        indices_text = '\n'.join(['{0} {2}%({1})'.format(*i) for i in
                                   report["index_report"]])
         indices_text = "\n\nIndex Snapshot:\n" + indices_text
         top_5 = ['{0} {1}{2}'.format(i['symbol'], i['pct_change'],
@@ -115,30 +133,10 @@ class MarketReport(metaclass=AsyncLoggingMeta):
 
         return text
 
-    def post_market_analysis_in_text(self):
-        """
-        Post market Analysis.
-        :return:
-        """
-        next_date = self.next_day.strftime("%d %b %Y")
-        fii_dii = self.verify_fii_dii_trades()
-        fno_sec = self.identify_fno_sec_ban()
-        title = "Trade Like a Yogi: Post Market Report: \n" \
-                "Analysis for {0}\n".format(self.next_day)
-        fii_dii = ['{0}: {1} - {2} = {3}Crs.'.format(i['category'], i['buy'],
-                                                     i['sell'], i['net'])
-                   for i in fii_dii]
-
-        fii_dii = "Inst.: Buy Value - Sell Value = Net Value\n" \
-                  + '\n'.join(fii_dii)
-        text = title + "\n" + fii_dii + "\n\n" + fno_sec
-        # TODO: Index Option Chain Analysis.
-
         return text
 
 
 if __name__ == '__main__':
     obj = MarketReport()
-    report = obj.day_close_in_text()
+    report = obj.post_market_report()
     print(report)
-    obj.post_market_analysis_in_text()

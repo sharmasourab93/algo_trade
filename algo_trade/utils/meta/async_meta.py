@@ -18,7 +18,7 @@ def compute_execution_time(method):
         execution = method(self, *args, **kwargs)
         end = perf_counter()
         elapsed_time = round(end - start, 2)
-        self.logger.debug("Execution time for {0}: {1}s".format(
+        self.logger.info("Execution time for {0}: {1}s".format(
             method.__name__, elapsed_time))
 
         return execution

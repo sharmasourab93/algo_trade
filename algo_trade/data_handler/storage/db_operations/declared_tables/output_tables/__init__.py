@@ -1,0 +1,2 @@
+from algo_trade.utils.db_utils.declared_tables.output_tables.cpr_output import CPROutput
+from algo_trade.utils.db_utils.declared_tables.output_tables.index_reports import IndexReport
