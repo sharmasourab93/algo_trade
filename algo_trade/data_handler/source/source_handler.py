@@ -97,7 +97,37 @@ class SourceHandler(NseDataConfig, YFUtils):
         # 9. Return the top_n stocks.
         return nse_list.loc[nse_list.index < top_n, :]
 
-    def yfin_index_data(self, index: str, period='1y', interval='1d'):
+    def processed_timeframe_bhavcopy(
+            self, nse_n: int, timeframe: str = "week",
+    ) -> pd.DataFrame:
+        """
+        Processed Timeframe Bhavcopy allows you to use daily processed data
+        to get you the updated symbols which can then be used to
+        retrieve/quote Weekly or monthly data.
+        """
+
+        data = self.processed_bhavcopy(nse_n)
+        tickers = data.symbol.to_list()
+
+        data_dict = self.get_previous_timeframe_quote(tickers,
+                                                      timeframe)
+        self.logger.debug("{0} timeframe copy received. ".format(
+            timeframe.capitalize()))
+
+        drop_cols = ["open", "high", "low",
+                     "close", "volume", "pct_change",
+                     "FNO", "mcap", "purpose", "bm_desc"]
+
+        data = data.drop(columns=drop_cols)
+
+        data = pd.merge(data, data_dict, on="symbol")
+        data = data.drop(columns=["dividends"])
+
+        return data
+
+    def yfin_index_data(self, index: str, period='1y', interval='1d') -> \
+            pd.DataFrame:
+        """ NSE Indices data retrieval method on YF. """
 
         try:
             data = self.get_period_data(YFIN_INDEX_LIST[index], period,
@@ -111,6 +141,7 @@ class SourceHandler(NseDataConfig, YFUtils):
         return data
 
     def yf_run_all_indices(self):
+        """ Runs all the ti"""
 
         keys = list(YFIN_INDEX_LIST.keys())
 

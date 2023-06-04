@@ -200,6 +200,7 @@ class YFUtils(DataUtils, metaclass=AsyncLoggingMeta):
         :param tickers: List of Stocks
         :returns: Previous Monthly Quote.
         """
+        # TODO: Needs fixing.
         tickers = self.get_unique_ticker_set(tickers)
         data = yf.Tickers(" ".join(tickers))
 

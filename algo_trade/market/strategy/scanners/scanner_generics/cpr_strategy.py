@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from abc import ABC, abstractmethod
 from collections import ChainMap
 from algo_trade.data_handler import DataHandler

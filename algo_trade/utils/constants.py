@@ -261,7 +261,7 @@ SWING_MIN_PCT_CHANGE = 5.0
 
 # Strategy 1 - BIGBANG
 SWING_VOLUME_DIFF = 2.5
-SWING_VOLUME_BIGBANG_ORDER = ["VolumeDiff"]
+SWING_VOLUME_BIGBANG_ORDER = ["volume_diff"]
 
 # Strategy 3 - Buying Pull backs
 SWING_BUYING_PULLBACKS = [""]
