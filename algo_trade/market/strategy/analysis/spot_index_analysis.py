@@ -10,6 +10,7 @@ from algo_trade.market.strategy.constants import ALL_INDICES_COLUMNS_ORDER, \
     SELECT_COLUMNS_FOR_INDEX_REPORT
 from algo_trade.data_handler.calendar.constants import DATE_FMT, TODAY
 from algo_trade.data_handler import DataHandler
+from algo_trade.data_handler.calendar import MarketCalendarTools
 
 
 class DailyIntradayIndicesReport(PivotPoints, metaclass=AsyncLoggingMeta):
@@ -132,7 +133,7 @@ class DailyIntradayIndicesReport(PivotPoints, metaclass=AsyncLoggingMeta):
 
         # Weekly Range Generated every Thursday.
         if TODAY.weekday() == 3 and days_to_consider == 1:
-            days_to_consider = self.nse_processor.days_until_expiry()
+            days_to_consider = MarketCalendarTools.days_until_expiry()
 
             data = self.calculate_vix_index_range(data, days_to_consider)
 

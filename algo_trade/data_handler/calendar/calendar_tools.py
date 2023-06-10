@@ -9,15 +9,10 @@ from pandas.tseries.offsets import BDay
 from algo_trade.data_handler.calendar.constants import TODAY, TIME_ZONE, \
     TIME_CUTOFF, DATE_FMT, \
     MARKET_START_TIME, MARKET_CLOSE_TIME
-from algo_trade.utils.logger.log_configurator import LogConfig
-from algo_trade.utils.constants import LOG_LEVEL
 from algo_trade.utils.meta import AsyncLoggingMeta
 
 from algo_trade.data_handler.source.nse.data_cache.cache_manager import \
     nsedata_cache
-
-LogConfig.setup_logging("", LOG_LEVEL)
-logger = LogConfig.get_logger(__name__)
 
 
 class MarketHolidays(metaclass=AsyncLoggingMeta):
