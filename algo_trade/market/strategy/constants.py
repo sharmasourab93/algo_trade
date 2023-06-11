@@ -81,6 +81,21 @@ SELECT_COLUMNS_FOR_INDEX_REPORT = [
     "monthly_lower_range"
 ]
 
+PCR_VERDICT_RANGE = {(0, 0.4): "Over Sold",
+                     (0.4, 0.6): "Very Bearish",
+                     (0.6, 0.8): "Bearish",
+                     (0.8, 1.0): "Mildly Bullish",
+                     (1.0, 1.2): "Bullish",
+                     (1.2, 1.5): "Very Bullish",
+                     (1.5, float('inf')): "Over Bought"
+                     }
+
+OPTION_CHAIN_STRIKE_MULTIPLES = {
+    (0, 200): 1,
+    (200, 400): 2.5,
+    (400, 500): 5,
+}
+
 # Swing Trading Section
 SWING_NSE_LIMIT = 1000
 SWING_FNO_FILTER = False
