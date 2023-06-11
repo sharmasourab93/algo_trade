@@ -5,7 +5,7 @@ import pandas as pd
 from numpy import inf, where
 from pandas import DataFrame
 from pandas import json_normalize
-from typing import Dict, Union, Tuple
+from typing import Dict, Union, Tuple, List
 from time import perf_counter
 from algo_trade.data_handler import DataHandler
 from algo_trade.utils.meta import AsyncLoggingMeta
@@ -353,13 +353,13 @@ class OptionChainAnalysis(metaclass=AsyncLoggingMeta):
 
             if 0 not in resistance.shape:
                 if 1 in resistance.shape:
-                    text_result += "Resistance at {0}.\n".format(
+                    text_result += "Resistance at {0}.".format(
                         resistance.strikePrice.iloc[0])
 
                 else:
                     text_result += "Multiple resistances near strike such " \
-                                   "as {0}.\n".format(', '.join(map(str,
-                                                                    resistance.strikePrice.to_list())))
+                                   "as {0}.".format(', '.join(map(str,
+                                                                  resistance.strikePrice.to_list())))
 
             else:
                 text_result += "Not many resistances. Reversal possible.\n"
@@ -400,7 +400,7 @@ class OptionChainAnalysis(metaclass=AsyncLoggingMeta):
         return text_result
 
     def all_indices_analysis(self, return_dict: bool = False) -> Union[dict,
-    str]:
+    List[str]]:
 
         """
         We run a thorough Option chain analysis on each of the
@@ -420,8 +420,7 @@ class OptionChainAnalysis(metaclass=AsyncLoggingMeta):
                 output = self.index_option_chain_analysis(i,
                                                           expiry_delta=2)
                 output += "\n*Note*: Analysis generated on expiry day may " \
-                          "not " \
-                          "accurate.\n"
+                          "not be accurate.\n"
 
             else:
                 output = self.index_option_chain_analysis(i,
@@ -430,7 +429,7 @@ class OptionChainAnalysis(metaclass=AsyncLoggingMeta):
             analysis_results.append(output)
 
         if not return_dict:
-            return '\n'.join(analysis_results)
+            return analysis_results
 
         return dict(zip(list(symbol_expiry.keys()), analysis_results))
 

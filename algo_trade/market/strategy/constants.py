@@ -69,7 +69,7 @@ ALL_INDICES_COLUMNS_INCLUDE_SYMBOL = [
 
 SELECT_COLUMNS_FOR_INDEX_REPORT = [
     "symbol",
-    "timestamp",
+    "close",
     "pct_change",
     "cpr_width",
     "cpr",
