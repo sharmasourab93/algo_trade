@@ -115,7 +115,7 @@ class DownloadTools(metaclass=AsyncLoggingMeta):
         try:
             content = byte_obj.getvalue().decode('utf-8')
             dialect = csv.Sniffer().sniff(content)
-
+            # TODO: Handle _csv.Error here.
             return True
 
         except (UnicodeDecodeError, csv.Error):
