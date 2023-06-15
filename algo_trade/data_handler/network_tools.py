@@ -75,6 +75,10 @@ class DownloadTools(metaclass=AsyncLoggingMeta):
         domain = self.extract_domain(url)
         cookies = self.get_cookies(domain, headers)
         response = self.get_request_api(url, headers, cookies)
+
+        if 'sec_ban' in url:
+            return response.text
+
         bytes_obj = BytesIO(response.content)
 
         self.logger.debug("Response received.")

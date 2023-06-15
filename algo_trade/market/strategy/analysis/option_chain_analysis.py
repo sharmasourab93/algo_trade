@@ -226,9 +226,13 @@ class OptionChainAnalysis(metaclass=AsyncLoggingMeta):
 
         options = ["Calls", "Puts"]
 
-        if symbol in ("NIFTY", "FINNIFTY"):
+        if symbol == "NIFTY":
             ce_data = df.iloc[:, -19:]
             pe_data = df.iloc[:, :20]
+        elif symbol == "FINNIFTY":
+            ce_data = df.iloc[:, :20]
+            pe_data = df.iloc[:, -19:]
+
         else:
             ce_data = df.iloc[:, :20]
             pe_data = df.iloc[:, 20:]
@@ -309,8 +313,8 @@ class OptionChainAnalysis(metaclass=AsyncLoggingMeta):
         avg_pe_volume = round(float(min_max_pcr.PE_openInterest.mean()), 2)
         avg_ce_volume = round(float(min_max_pcr.CE_openInterest.mean()), 2)
 
-        text_result = 'Option Chain Analysis for ' \
-                      '{1} Expiry Due: {0}\n'.format(expiry_date, symbol)
+        text_result = '*Option Chain Analysis for ' \
+                      '{1} Expiry Due: {0}*\n'.format(expiry_date, symbol)
 
         # If we have 2 items in the Option chain with Max Calls and Max Puts.
         # We will have two strikes to identify and also mention Supports and
@@ -416,15 +420,16 @@ class OptionChainAnalysis(metaclass=AsyncLoggingMeta):
         analysis_results = list()
         for i, j in symbol_expiry.items():
 
-            if TODAY.weekday == j:
+            if TODAY.weekday() != j:
+                output = self.index_option_chain_analysis(i,
+                                                          expiry_delta=1)
+                output += "\n"
+
+            else:
                 output = self.index_option_chain_analysis(i,
                                                           expiry_delta=2)
                 output += "\n*Note*: Analysis generated on expiry day may " \
                           "not be accurate.\n"
-
-            else:
-                output = self.index_option_chain_analysis(i,
-                                                          expiry_delta=1)
 
             analysis_results.append(output)
 
