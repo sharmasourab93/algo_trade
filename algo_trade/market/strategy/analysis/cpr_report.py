@@ -16,6 +16,10 @@ def cpr_report():
         i.logger.info("CPR Strategy for {0} completed.".format(i))
 
     data = pd.concat(data)
+    data["con_range"] = data.con_range.fillna(0)
+    data["purpose"] = data.purpose.fillna("-")
+    data["long_vcpr"] = data.long_vcpr.fillna("-")
+    data["short_vcpr"] = data.long_vcpr.fillna("-")
 
     return data
 

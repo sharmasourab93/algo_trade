@@ -36,7 +36,7 @@ class WeeklyCPRStrategy(CPRAbstract, metaclass=AsyncLoggingMeta):
                 data = data[cpr_columns].sort_values(by=self.order_by,
                                                      ascending=self.asc)
 
-            data["Frequency"] = self.CPR_FREQUENCY
+            data["frequency"] = self.CPR_FREQUENCY
 
             self.logger.debug(
                 "Execution of Weekly CPR Strategy Scanner Complete. "
