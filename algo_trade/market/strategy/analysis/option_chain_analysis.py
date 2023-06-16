@@ -226,16 +226,8 @@ class OptionChainAnalysis(metaclass=AsyncLoggingMeta):
 
         options = ["Calls", "Puts"]
 
-        if symbol == "NIFTY":
-            ce_data = df.iloc[:, -19:]
-            pe_data = df.iloc[:, :20]
-        elif symbol == "FINNIFTY":
-            ce_data = df.iloc[:, :20]
-            pe_data = df.iloc[:, -19:]
-
-        else:
-            ce_data = df.iloc[:, :20]
-            pe_data = df.iloc[:, 20:]
+        ce_data = df.loc[:, df.columns.str.match("^(CE|expiryDate)")]
+        pe_data = df.loc[:, df.columns.str.match("^(PE|expiryDate)")]
 
         # Call Option data frame maintainance.
         ce_data.columns = ce_data.columns.str.replace(r"CE.", "")
