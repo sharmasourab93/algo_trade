@@ -10,6 +10,7 @@ from algo_trade.market.strategy.constants import ALL_INDICES_COLUMNS_ORDER, \
     SELECT_COLUMNS_FOR_INDEX_REPORT
 from algo_trade.data_handler.calendar.constants import DATE_FMT, TODAY
 from algo_trade.data_handler import DataHandler
+from algo_trade.data_handler.calendar import MarketCalendarTools
 
 
 class DailyIntradayIndicesReport(PivotPoints, metaclass=AsyncLoggingMeta):
@@ -18,8 +19,9 @@ class DailyIntradayIndicesReport(PivotPoints, metaclass=AsyncLoggingMeta):
         self.next_bday = self.nse_processor.next_day
         self.last_bday = self.nse_processor.prev_day
         self.month_range = monthrange(TODAY.year, TODAY.month)
+        self.data = self.nse_processor.get_nse_all_indices()
 
-    def indices_report(self) -> pd.DataFrame:
+    def indices_report(self, filter_symbols: bool = True) -> pd.DataFrame:
         """Generating a Daily Analysis Report on the Index.
 
         Steps include:
@@ -31,7 +33,7 @@ class DailyIntradayIndicesReport(PivotPoints, metaclass=AsyncLoggingMeta):
 
         """
 
-        data = self.nse_processor.get_nse_all_indices()
+        data = self.data
 
         data = data.fillna(0)
 
@@ -50,12 +52,17 @@ class DailyIntradayIndicesReport(PivotPoints, metaclass=AsyncLoggingMeta):
         data = data[ALL_INDICES_COLUMNS_ORDER]
 
         # Excluding FIXED INCOME INDICES & Only including some Symbols.
-        data = data.loc[
-               ~data.loc[:, "key"].isin(["FIXED INCOME INDICES"])
-               & data.loc[:, "symbol"].isin(
-                   ALL_INDICES_COLUMNS_INCLUDE_SYMBOL),
-               :,
-               ]
+        if filter_symbols:
+
+            data = data.loc[
+                   ~data.loc[:, "key"].isin(["FIXED INCOME INDICES"])
+                   & data.loc[:, "symbol"].isin(
+                       ALL_INDICES_COLUMNS_INCLUDE_SYMBOL),
+                   :,
+                   ]
+        else:
+            data = data.loc[~data.loc[:, "key"].isin(["FIXED INCOME "
+                                                      "INDICES"]), :]
 
         data = self.calculate_vix_index_range(data, 1)
         data = self.calculate_vix_index_range(data, 5)
@@ -132,7 +139,7 @@ class DailyIntradayIndicesReport(PivotPoints, metaclass=AsyncLoggingMeta):
 
         # Weekly Range Generated every Thursday.
         if TODAY.weekday() == 3 and days_to_consider == 1:
-            days_to_consider = self.nse_processor.days_until_expiry()
+            days_to_consider = MarketCalendarTools.days_until_expiry()
 
             data = self.calculate_vix_index_range(data, days_to_consider)
 

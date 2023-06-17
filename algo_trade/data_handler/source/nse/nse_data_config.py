@@ -8,8 +8,7 @@ from algo_trade.data_handler.source.nse import nse_web_map, nsedata_cache
 from algo_trade.data_handler.network_tools import DownloadTools
 from algo_trade.data_handler.source.constants import TRADEABLE_INDICES_NAME
 from algo_trade.data_handler.calendar.constants import TODAY, DATE_FMT
-from algo_trade.data_handler.source.data_utils import DataUtils, \
-    merge_quote_option_chain
+from algo_trade.data_handler.source.data_utils import DataUtils
 
 
 class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
@@ -39,7 +38,6 @@ class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
         data = DataFrame(data.json())
         return data
 
-    @merge_quote_option_chain
     def nse_option_chain(self, key: str, symbol: str) -> dict:
 
         """
@@ -53,6 +51,7 @@ class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
         else:
             url = self.nse_map.nse_index_option_chain(symbol)
 
+        cookies = self.download_tools.get_cookies(url, self.headers)
         data = self.download_tools.get_request_api(url, self.headers,
                                                    cookies)
         self.logger.debug(

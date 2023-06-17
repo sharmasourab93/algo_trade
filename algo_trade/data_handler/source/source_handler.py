@@ -140,12 +140,12 @@ class SourceHandler(NseDataConfig, YFUtils):
         data["symbol"] = index
         return data
 
-    def yf_run_all_indices(self):
+    def yf_run_all_indices(self, period: str = '2d', interval: str = '1d'):
         """ Runs all the ti"""
 
         keys = list(YFIN_INDEX_LIST.keys())
 
-        data = [self.yfin_index_data(i) for i in keys]
+        data = [self.yfin_index_data(i, period, interval) for i in keys]
 
         data = pd.concat(data)
 

@@ -259,11 +259,15 @@ class MarketCalendarTools:
 
     @staticmethod
     def get_weekly_expiry(
+            symbol: str = 'NIFTY',
             date_: Optional[Union[date, str]] = None,
             day_index: Optional[int] = 3,
             index_count: Optional[int] = 6,
             to_strftime: bool = True,
     ):
+
+        if symbol == 'FINNIFTY':
+            day_index = 1
 
         # Check if Passed param is a str, None or Date
         if date_ is None:
