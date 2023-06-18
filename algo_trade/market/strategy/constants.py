@@ -108,6 +108,11 @@ SWING_VOLUME_DIFF = 10
 SWING_VOLUME_BIGBANG_ORDER = ["volume_diff"]
 
 # Strategy 3 - Buying Pull backs
-SWING_BUYING_PULLBACKS = [""]
-
+SWING_BUYING_PULLBACKS = ["close"]
+SWING_BUYING_PULLBACKS_VOLUME = 10000000
+SWING_BUYINGPULLBACKS_PCT = (20, 30, 50)
+SWING_BUYING_PULLBACK_COLUMNS = ["symbol", "close",
+                                 "prev_close", "volume", "pct_change",
+                                 "date"]
+SWING_BUYING_PULLBACK_MIN_PCT = 3
 STOCK_MODIFICATION = {"MOTHERSUMI": "MOTHERSON"}
