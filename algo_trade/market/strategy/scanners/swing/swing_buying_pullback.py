@@ -8,7 +8,7 @@
 #   Meaning we buy pullbacks only sound stocks with strong momentum.
 # 2. Look for some consolidation in the stock -
 #    these consolidations can be of time or price.
-#    For time it will be in sideways moves and
+#    For time, it will be in sideways moves and
 #    for price it will move around 10, 20, 50 EMA.
 # 3. Stocks > 300Rs in terms of Price.
 # 4. Minimum trading volume in stock is at least 1 Crore/day.
@@ -60,11 +60,22 @@
 import numpy as np
 import pandas as pd
 
-from algo_trade.scanners.swing.swing_strategies import SwingTradingGeneric
-from algo_trade.utils.constants import SWING_MIN_SHARE_PRICE, SWING_BUYING_PULLBACKS
+from algo_trade.market.strategy.scanners.scanner_generics.swing_generic import \
+    SwingTradingGeneric
+from algo_trade.market.strategy.analysis.consolidation_analysis import \
+    ConsolidationRange
+from algo_trade.utils.meta import AsyncLoggingMeta
+from algo_trade.market.strategy.constants import \
+    (SWING_MIN_SHARE_PRICE,
+     SWING_BUYING_PULLBACKS,
+     SWING_BUYING_PULLBACKS_VOLUME,
+     SWING_BUYINGPULLBACKS_PCT,
+     SWING_BUYING_PULLBACK_COLUMNS,
+     SWING_BUYING_PULLBACK_MIN_PCT)
 
 
-class SwingBuyingPullBackScanner(SwingTradingGeneric):
+class SwingBuyingPullBackScanner(SwingTradingGeneric,
+                                 metaclass=AsyncLoggingMeta):
     """
     Swing Buying Pull back Scanner
     Identify Pullback Trade opportunities
@@ -73,12 +84,12 @@ class SwingBuyingPullBackScanner(SwingTradingGeneric):
     __name__ = "Buying Pull-backs"
 
     def __init__(
-        self,
-        tf: str = "1d",
-        min_price: float = SWING_MIN_SHARE_PRICE,
-        order_by: list = SWING_BUYING_PULLBACKS,
-        *args,
-        **kwargs
+            self,
+            tf: str = "1d",
+            min_price: float = SWING_MIN_SHARE_PRICE,
+            order_by: list = SWING_BUYING_PULLBACKS,
+            *args,
+            **kwargs
     ):
         super(SwingBuyingPullBackScanner, self).__init__(*args, **kwargs)
 
@@ -87,12 +98,53 @@ class SwingBuyingPullBackScanner(SwingTradingGeneric):
         self.order_by = order_by
 
     def swing_filtered_list(self) -> pd.DataFrame:
+        data = self.get_swing_trading_ready_list()
+        data = data.loc[(
+            (data.close >= self.min_price)
+        )].sort_values(by=self.order_by)
+
+        return data
+
+    def generate_swing_output(self) -> pd.DataFrame:
         """Applies conditions for the current swing Strategy."""
 
-        data = self.get_swing_trading_ready_list()
+        data = self.swing_filtered_list()
+        tickers = data.symbol.to_list()
+        data = self.processor.larger_timeframe_quotes(tickers, (30, 90,
+                                                                180))
 
-        data = data.loc[(data.Last >= self.min_price), :]
+        data = data.loc[((data['30days'] >= 20) & (data['90days'] >= 30) &
+                         (data['180days'] >= 50)), :]
+        data["trading_value"] = data.volume * data.close
+        data = data.loc[data.trading_value >= 10000000]
+        tickers = data.symbol.to_list()
 
-        # TODO: Write Method to get % change over 30, 90 & 180 days
-        data = 0
-        pass
+        con_range = ConsolidationRange()
+        ticker_series = con_range.get_price_time_consolidation(tickers)
+
+        data = pd.merge(data, ticker_series, on="symbol",
+                        how="left")
+        self.logger.info("Dataframe generated for Strategy {0}".format(
+            self.__name__))
+        data = data.loc[(data.price_con_range >= 10) |
+                        (data.time_con_range == 1), :]
+
+        data = data.loc[:,
+               # data["pct_change"] >= SWING_BUYING_PULLBACK_MIN_PCT,
+               SWING_BUYING_PULLBACK_COLUMNS]
+
+        data["Strategy"] = self.__name__
+        data["lotsize"] = 0
+        data = data.rename(columns={"date": "timestamp"})
+
+        self.append_swing_results(data)
+
+
+if __name__ == '__main__':
+    obj = SwingBuyingPullBackScanner()
+
+    obj.generate_swing_output()
+
+    result = obj.get_swing_result()
+
+    print(result)
