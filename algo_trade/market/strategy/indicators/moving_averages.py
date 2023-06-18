@@ -5,12 +5,14 @@ import pandas as pd
 class MovingAverages:
 
     def add_moving_averages(
-            self, data: pd.DataFrame, ma: str = "EMA",
+            self,
+            data: pd.DataFrame,
+            ma: str = "EMA",
             ma_range: tuple = (20, 50, 200)
-    ):
+    ) -> pd.DataFrame:
         """
         Method to Add Moving Averages.
-        Currently includes only,
+        Currently, includes only,
             i.  Exponential moving Averages & Data
             ii. Simple/Daily Moving Averages
         :param data:
@@ -19,16 +21,22 @@ class MovingAverages:
         :return:
         """
 
-        if ma == "EMA":
-            for i in ma_range:
-                col = ma + "{0}".format(i)
-                data[col] = data["close"].ewm(span=i, adjust=False)
-
-        elif ma == "SMA" or ma == "DMA":
+        if ma == "SMA" or ma == "DMA":
             for i in ma_range:
                 col = ma + "{0}".format(i)
                 data[col] = data["close"].rolling(i).mean()
 
+        elif ma == "EMA":
+            for i in ma_range:
+                col = ma + "{0}".format(i)
+                data[col] = data.sort_values(by=["date"]).close. \
+                                ewm(span=i,
+                                    adjust=False).mean().reindex(). \
+                                iloc[::-1].round(2)
+        else:
+
+            raise KeyError("Invalid Key passed for moving average. "
+                           "Moving Average received: {0}".format(ma))
         return data
 
     # def moving_average_crossover(self,
