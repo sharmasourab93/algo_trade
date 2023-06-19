@@ -64,6 +64,7 @@ from algo_trade.market.strategy.scanners.scanner_generics.swing_generic import \
     SwingTradingGeneric
 from algo_trade.market.strategy.analysis.consolidation_analysis import \
     ConsolidationRange
+from algo_trade.data_handler.calendar.constants import DATE_FMT
 from algo_trade.utils.meta import AsyncLoggingMeta
 from algo_trade.market.strategy.constants import \
     (SWING_MIN_SHARE_PRICE,
@@ -136,6 +137,9 @@ class SwingBuyingPullBackScanner(SwingTradingGeneric,
         data["Strategy"] = self.__name__
         data["lotsize"] = 0
         data = data.rename(columns={"date": "timestamp"})
+
+        data["timestamp"] = pd.to_datetime(data.timestamp).apply(
+            lambda x: x.strftime(DATE_FMT))
 
         self.append_swing_results(data)
 
