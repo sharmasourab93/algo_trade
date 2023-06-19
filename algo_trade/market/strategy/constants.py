@@ -12,7 +12,7 @@ CPR_STRATEGY_COLUMNS = [
     "volume",
     "cpr_width",
     "cpr",
-    "con_range",
+    "time_con_range",
     "purpose",
     "priority_stocks",
     "timestamp"

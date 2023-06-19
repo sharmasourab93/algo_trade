@@ -73,11 +73,12 @@ class ConsolidationRange(metaclass=AsyncLoggingMeta):
         return self._get_count_consolidation(data)
 
     def get_time_consolidation(self, tickers: Union[List[str], str],
-                               period: str, interval: str,
-                               chart: str, to_df: bool = True) -> \
+                               chart: str = 'D', to_df: bool = True,
+                               period: str = 'ytd', interval: str = '1d', ) -> \
             Union[pd.DataFrame, Dict[str, int]]:
 
-        data = self._get_data_for_consolidation(tickers, period, interval)
+        data = self._get_data_for_consolidation(tuple(tickers), period,
+                                                interval)
 
         data = {i: self._get_consolidation_range(j)
                 for i, j in data.items()}
