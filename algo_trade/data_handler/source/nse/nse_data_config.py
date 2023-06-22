@@ -20,6 +20,29 @@ class NseDataConfig(DataUtils, metaclass=AsyncLoggingMeta):
         self.download_tools = DownloadTools()
         self.headers = self.nse_map.nse_headers_simple
 
+    def nse_ipo_issues_past(self) -> DataFrame:
+
+        if self.prev_day.month == self.next_day.month and \
+                "ipo_issues" in self.cache.loaded_dict.keys():
+            return self.cache.loaded_dict["ipo_issues"]
+
+        url = self.nse_map.nse_ipo_past_issues_all
+
+        data = self.download_tools.get_request_api(url, self.headers)
+        data = data.json()['data']
+
+        data = DataFrame(data)
+        data = data.loc[(data.securityType == 'EQ')
+                        & (data.listingDate != '-'),
+        ["symbol", "listingDate", "company"]]
+        data.columns = data.columns.str.lower()
+        data["listingdate"] = to_datetime(data.listingdate,
+                                          format=DATE_FMT).apply(lambda x:
+                                                                 x.date())
+        self.cache.loaded_dict["ipo_issues"] = data
+
+        return data
+
     def nse_release_event(self, from_date: date, to_date: date,
                           symbol: str = None):
         """ Gets you release dates for all stocks. """
