@@ -120,7 +120,7 @@ class PivotPoints:
         for j in range(1, 8):
             
             if price<(2500 * (2**(j - 1))):
-                return j - 1
+                return j
     
     def plot_cpr_width(self, data: pd.DataFrame, classify_cpr: bool = True):
         """
