@@ -91,6 +91,7 @@ class SwingTradingGeneric(MovingAverages, metaclass=AsyncLoggingMeta):
         . """
 
         data = SwingTradingGeneric.swing_result.fillna(0)
+        data = data.drop(columns=["index"])
         return data
 
     @abstractmethod

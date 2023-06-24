@@ -123,7 +123,8 @@
                         "ipp"
                     ],
                     "IPO": "api/ipo-current-issue",
-                    "UPCOMING": "api/all-upcoming-issues?category={0}"
+                    "UPCOMING": "api/all-upcoming-issues?category={0}",
+                    "PAST-ISSUES": "api/public-past-issues"
                 },
                 "MF": {
                     "DATE-FMT": "%d-%m-%Y",

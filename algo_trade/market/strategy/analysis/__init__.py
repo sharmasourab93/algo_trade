@@ -1,2 +1,2 @@
-from algo_trade.market.strategy.analysis.stock_consolidation import \
-    StockConsolidationRange
+from algo_trade.market.strategy.analysis.consolidation_analysis import \
+    ConsolidationRange

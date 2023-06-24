@@ -178,6 +178,20 @@ class NSEApiMap(abc.ABC):
         )
 
     @property
+    def nse_ipo_past_issues_all(self):
+        return (
+                self.nse_domain
+                + self.loaded_dict["Market"]["NSE"]["API"]["ISSUES"][
+                    "PAST-ISSUES"])
+
+    def nse_ipo_issues_past(self):
+        url = self.nse_ipo_past_issues_all
+
+        data = self.download_tools.get_request_api(url, self.headers)
+
+        return data
+
+    @property
     def nse_api_fii_dii_report(self):
         return (
                 self.nse_domain

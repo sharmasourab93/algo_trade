@@ -4,9 +4,8 @@ from abc import ABC, abstractmethod
 from collections import ChainMap
 from algo_trade.data_handler import DataHandler
 from algo_trade.data_handler.calendar.constants import DATE_FMT
-from algo_trade.market.strategy.analysis import StockConsolidationRange
+from algo_trade.market.strategy.analysis import ConsolidationRange
 from algo_trade.market.strategy.indicators import MovingAverages, PivotPoints
-from algo_trade.market.strategy.analysis import StockConsolidationRange
 
 VCPR_ANALYSIS_CPR_CUT_OFF = 0.2
 
@@ -19,7 +18,7 @@ class CPRAbstract(MovingAverages, PivotPoints):
                  ascending: bool = False,
                  date_str: str = None,
                  consolidation: bool = True,
-                 order_by: tuple = ("con_range", "cpr_width"),
+                 order_by: tuple = ("time_con_range", "cpr_width"),
                  nse: int = 250,
                  vcpr_analysis: bool = True):
         self.nse_n = nse
@@ -27,7 +26,7 @@ class CPRAbstract(MovingAverages, PivotPoints):
         self.order_by = order_by
         self.consolidation = consolidation
         self.yf_utils = DataHandler()
-        self.consol_range_obj = StockConsolidationRange()
+        self.consol_range_obj = ConsolidationRange()
         self.vcpr_analysis = vcpr_analysis
 
         if self.vcpr_analysis:

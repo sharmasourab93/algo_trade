@@ -32,15 +32,8 @@ class IntradayStockCPRStrategy(CPRAbstract, metaclass=AsyncLoggingMeta):
 
             cpr_columns = CPR_STRATEGY_COLUMNS
 
-            try:
-                consol_count = self.consol_range_obj.get_consolidation_range_for_series(
-                    tickers
-                )
-
-            except RuntimeError:
-                consol_count = self.consol_range_obj.get_consolidation_range_for_series(
-                    tickers
-                )
+            consol_count = self.consol_range_obj.get_time_consolidation(
+                tickers)
 
             data = pd.merge(data, consol_count, on="symbol", how="left")
 

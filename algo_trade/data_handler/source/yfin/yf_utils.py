@@ -4,6 +4,7 @@ import numpy as np
 import yfinance as yf
 from datetime import datetime, date
 from calendar import monthrange
+from typing import List, Tuple
 
 from algo_trade.data_handler.calendar.constants import DATE_FMT
 from algo_trade.data_handler.source.constants import YF_UTILS_EXCEPTION_LIST
@@ -258,3 +259,38 @@ class YFUtils(DataUtils, metaclass=AsyncLoggingMeta):
         }
 
         return time_methods[timeframe](tickers)
+
+    def pullback_quote_generator(self,
+                                 ticker: str,
+                                 days: Tuple[int],
+                                 period: str,
+                                 interval: str) -> pd.DataFrame:
+
+        data = self.get_period_data(ticker, period=period, interval=interval)
+        data = data.sort_values(by='date', ascending=False)
+        interval_days = [float(data['pct_change'].iloc[:i].sum()) for i in
+                         days]
+
+        avg_trading_volume = data.volume.mean()
+        data = data.head(1)
+        for i, j in enumerate(interval_days):
+            data['{0}days'.format(days[i])] = j
+
+        data['symbol'] = ticker
+        data['volume'] = avg_trading_volume
+        self.logger.info("Pullback Quote Generated for: {0}".format(ticker))
+
+        return data
+
+    def larger_timeframe_quotes(self, tickers: str, days: tuple = (30, 90,
+                                                                   180),
+                                period: str = '6mo',
+                                interval: str = '1d'):
+
+        ticker_quotes = list()
+        for i in tickers:
+            ticker_quotes.append(self.pullback_quote_generator(i, days,
+                                                               period,
+                                                               interval))
+
+        return pd.concat(ticker_quotes)
