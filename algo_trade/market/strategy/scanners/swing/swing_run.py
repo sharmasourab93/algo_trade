@@ -5,6 +5,8 @@ from algo_trade.market.strategy.scanners.swing.swing_buying_pullback import \
     SwingBuyingPullBackScanner
 from algo_trade.market.strategy.scanners.swing.swing_volume_scanner import \
     SwingVolumeScanner
+from algo_trade.market.strategy.scanners.swing.swing_ema_crossover_scanner \
+    import SwingMovingAverageCrossOver
 
 
 def swing_result():
@@ -13,13 +15,13 @@ def swing_result():
         if isclass(obj):
             _ = obj()
             class_list.append(_)
-
+    
     class_list = [i.generate_swing_output() for i in class_list]
-
+    
     return _.get_swing_result()
 
 
 if __name__ == '__main__':
     result = swing_result()
-
+    
     print(result)

@@ -1,4 +1,5 @@
 import pandas as pd
+from numpy import select
 
 
 class MovingAverages:
@@ -8,7 +9,7 @@ class MovingAverages:
             data: pd.DataFrame,
             column: str = 'close',
             ma: str = "EMA",
-            ma_range: tuple = (20, 50, 200)
+            ma_range: tuple = (10, 20, 50, 200)
             ) -> pd.DataFrame:
         """
         Method to Add Moving Averages.
@@ -16,6 +17,7 @@ class MovingAverages:
             i.  Exponential moving Averages & Data
             ii. Simple/Daily Moving Averages
         :param data:
+        :param column:
         :param ma: EMA| SMA | DMA
         :param ma_range: Range of Moving Averages
         :return:
@@ -39,65 +41,31 @@ class MovingAverages:
                            "Moving Average received: {0}".format(ma))
         return data
     
-    # def moving_average_crossover(self,
-    #                              data: pd.DataFrame,
-    #                              ma1: str, ma2: str) -> pd.DataFrame:
-    #     """
-    #     Method to identify Moving Average Crossovers.
-    #     :param data:
-    #     :param ma1:
-    #     :param ma2:
-    #
-    #     :returns: Dataframe with a column on Crossovers.
-    #     """
-    #
-    #     prev_1 = data[ma1].shift(1)
-    #     prev_2 = data[ma2].shift(1)
-    #
-    #     cross1 = ((data[ma1] <= data[ma2]) & (prev_1 >= prev_2))
-    #     cross2 = ((data[ma1] >= data[ma2]) & (prev_1 <= prev_2))
-    #
-    #     data[ma1 + 'X' + ma2] = cross1
-    #     data[ma2 + 'X' + ma1] = cross2
-    #
-    #     return data
-    
-    def moving_average_crossover(
-            self, data: pd.DataFrame, ma1: str, ma2: str, ma3: str
-            ) -> pd.DataFrame:
+    def moving_average_crossover(self,
+                                 data: pd.DataFrame,
+                                 ma1: str, ma2: str) -> pd.DataFrame:
         """
-        Method to identify position of a higher moving average, and
-        it's crossover & it's position in percentile.
-
+        Method to identify Moving Average Crossovers.
         :param data:
         :param ma1:
         :param ma2:
-        :param ma3:
-        :returns: Data Frame with Crossover
+
+        :returns: Dataframe with a column on Crossovers.
         """
         
         prev_1 = data[ma1].shift(1)
         prev_2 = data[ma2].shift(1)
-        prev_3 = data[ma3].shift(1)
         
-        cross1 = (data[ma1]<=data[ma2])&(prev_1>=prev_2)
-        cross2 = (data[ma1]>=data[ma2])&(prev_1<=prev_2)
+        cross1 = ((data[ma1]<=data[ma2])&(prev_1>=prev_2))
+        cross2 = ((data[ma1]>=data[ma2])&(prev_1<=prev_2))
         
-        data[ma1 + "X" + ma2] = cross1
-        data.loc[:, [ma1 + "X" + ma2]] = data[ma1 + "X" + ma2].apply(
-            lambda x:"Short")
-        data[ma2 + "X" + ma1] = cross2
+        column = ma1 + 'X' + ma2
         
-        cross_1_3 = (data[ma1]<=data[ma3])&(prev_1>=prev_3)
-        cross_3_1 = (data[ma1]>=data[ma3])&(prev_1<=prev_3)
+        data[column] = cross1|cross2
+        data[column + 'Up_Down'] = select(
+            [((data[column] == True)&(data[ma1]>=data[ma2])),
+             ((data[column] == True)&(data[ma1]<data[ma2])),
+             (data[column] == False)],
+            ['Upside', 'Downside', 'No Crossover'])
         
-        data[ma1 + "X" + ma3] = cross_1_3
-        data[ma3 + "X" + ma1] = cross_3_1
-        
-        cross_2_3 = (data[ma2]<=data[ma3])&(prev_2>=prev_3)
-        cross_3_2 = (data[ma2]>=data[ma3])&(prev_2<=prev_3)
-        
-        data[ma2 + "X" + ma3] = cross_2_3
-        data[ma3 + "X" + ma2] = cross_3_2
-        
-        return data
+        return tuple(data.iloc[-1].iloc[-2:].values.tolist())
