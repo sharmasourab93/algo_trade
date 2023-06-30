@@ -8,6 +8,7 @@ from algo_trade.market.strategy.scanners.scanner_generics.swing_generic import S
 from algo_trade.data_handler.calendar.constants import DATE_FMT
 from algo_trade.data_handler import DataHandler
 from algo_trade.utils.meta import AsyncLoggingMeta
+from algo_trade.utils import write_df_to_file
 
 
 class VolumeShockers(SwingTradingGeneric, metaclass=AsyncLoggingMeta):
@@ -89,4 +90,7 @@ class VolumeShockers(SwingTradingGeneric, metaclass=AsyncLoggingMeta):
 if __name__ == '__main__':
     obj = VolumeShockers()
     data = obj.run_volume_shocker_output()
-    print(data)
+    
+    dated_ = obj.processor.prev_day.strftime(DATE_FMT)
+    
+    write_df_to_file(data, "{0}_{1}".format(obj.STRATEGY_NAME, dated_))
