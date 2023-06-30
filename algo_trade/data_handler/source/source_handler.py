@@ -1,5 +1,6 @@
 import pandas as pd
 from datetime import datetime, date, timedelta
+from typing import Union
 from algo_trade.data_handler.calendar.constants import DATE_FMT
 from algo_trade.data_handler.source.yfin.yf_utils import YFUtils
 from algo_trade.data_handler.source.nse.nse_data_config import NseDataConfig
@@ -51,6 +52,46 @@ class SourceHandler(NseDataConfig, YFUtils):
             data.symbol.isin(select_stocks), "priority_stocks"] = "Priority"
 
         return data
+
+    def store_strategy_output(self, strategy_name: str, output_data: pd.DataFrame, output_date: str):
+        """
+        This method updates the processed bhavcopy to accomodate on 'symbol' as the common
+        :param strategy_name(str):
+        :param output_data(pd.DataFrame):
+        :param output_date(str):
+        :return:
+        """
+
+        dict_output = {output_date: output_data}
+
+        try:
+            self.cache.loaded_dict["outputs"][strategy_name].update(dict_output)
+        except KeyError:
+            self.cache.loaded_dict["outputs"].update({strategy_name: dict_output})
+
+        self.cache.save()
+
+    def retrieve_strategy_output(self, strategy_name: str, output_date: str) \
+            -> Union[pd.DataFrame, None]:
+        """
+        This method allows you to retrieve stored output per strategy name.
+        :param strategy_name:
+        :param output_date:
+        :return:
+        """
+        try:
+
+            if strategy_name in self.cache["outputs"].keys() and \
+                    output_date in self.cache["outputs"][strategy_name].keys():
+                data = self.cache.loaded_dict["outputs"][strategy_name][output_date]
+
+                return data
+
+            return None
+
+        except KeyError:
+
+            return None
 
     def processed_bhavcopy(self, top_n: int = 1000) -> pd.DataFrame:
         """
