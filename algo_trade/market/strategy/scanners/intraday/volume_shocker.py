@@ -80,7 +80,7 @@ class VolumeShockers(SwingTradingGeneric, metaclass=AsyncLoggingMeta):
         data = data.loc[((data.day_volume>(data['10sma_volume'] * 2))
                          &((data.last_close>(data.prev_close * 1.05))|
                            (data.last_close<(data.prev_close * 0.95)))), :]
-        data = data.sort_values(by='day_volume', ascending=False)
+        data = data.sort_values(by=['day_pct_change', 'day_volume'], ascending=False)
         
         return data
 
