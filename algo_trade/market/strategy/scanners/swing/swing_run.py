@@ -1,5 +1,7 @@
 import sys
 from inspect import isclass, getmembers
+from algo_trade.utils import write_df_to_file
+from algo_trade.data_handler.calendar.constants import DATE_FMT
 
 from algo_trade.market.strategy.scanners.swing.swing_buying_pullback import \
     SwingBuyingPullBackScanner
@@ -24,4 +26,8 @@ def swing_result():
 if __name__ == '__main__':
     result = swing_result()
     
-    print(result)
+    from datetime import datetime
+    
+    dated_ = datetime.today().strftime(DATE_FMT)
+    
+    write_df_to_file(result, "{0}_{1}".format("SWINGRUN", dated_))
