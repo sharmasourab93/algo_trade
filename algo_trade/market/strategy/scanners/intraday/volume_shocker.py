@@ -11,6 +11,7 @@ from algo_trade.utils.meta import AsyncLoggingMeta
 
 
 class VolumeShockers(SwingTradingGeneric, metaclass=AsyncLoggingMeta):
+    STRATEGY_NAME = 'VolumeShockerStrategy'
     
     def __init__(self, nse: int = 500, period: str = '2d', interval: str = '5m', *args, **kwargs):
         super(VolumeShockers, self).__init__(nse, *args, **kwargs)
