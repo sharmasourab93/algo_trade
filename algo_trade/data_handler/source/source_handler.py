@@ -162,7 +162,6 @@ class SourceHandler(NseDataConfig, YFUtils):
         data = data.drop(columns=drop_cols)
 
         data = pd.merge(data, data_dict, on="symbol")
-        data = data.drop(columns=["dividends"])
 
         return data
 
