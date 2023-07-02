@@ -48,7 +48,7 @@ class VolumeShockers(SwingTradingGeneric, metaclass=AsyncLoggingMeta):
 
         return sma_data
 
-    async def _get_processed_cpr_data(self) -> pd.DataFrame:
+    async def _get_processed_cpr_data(self, limit: int) -> pd.DataFrame:
         now = datetime.now()
         prev_day = datetime.combine(self.processor.prev_day, MARKET_CLOSE_TIME)
         next_day = datetime.combine(self.processor.next_day, MARKET_START_TIME)
@@ -60,6 +60,7 @@ class VolumeShockers(SwingTradingGeneric, metaclass=AsyncLoggingMeta):
 
         data = self.processor.retrieve_strategy_output('IntradayCPRAnalysis',
                                                        minus_date.strftime(DATE_FMT))
+        data = data.loc[data.index <= limit, :]
         data = data.loc[data.cpr.isin(["Narrow CPR", "Mid CPR", "Compact CPR"]), ["symbol", "close", "pct_change",
                                                                                   "time_con_range", "volume",
                                                                                   "cpr"]]
@@ -70,8 +71,8 @@ class VolumeShockers(SwingTradingGeneric, metaclass=AsyncLoggingMeta):
 
         return data
 
-    async def _trade_ready_filtered_list(self) -> pd.DataFrame:
-        data = await self._get_processed_cpr_data()
+    async def _trade_ready_filtered_list(self, limit: int = 500) -> pd.DataFrame:
+        data = await self._get_processed_cpr_data(limit)
         tickers = data.symbol.tolist()
 
         # Fetching Volume's 10 Simple Moving Average and integrating with the data.
