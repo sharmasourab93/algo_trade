@@ -1,3 +1,4 @@
+import concurrent.futures
 from os import getenv
 import asyncio
 import pandas as pd
@@ -7,30 +8,54 @@ from algo_trade.utils.logger.log_configurator import LogConfig
 from contextlib import contextmanager
 
 ENABLE_LOGGING = getenv('LOG_ON', True)
-LOG_LEVEL = getenv('LOG_LEVEL', 'DEBUG')
-MAKE_ASYNC = getenv('MAKE_ASYNC', True)
+LOG_LEVEL = getenv('LOG_LEVEL', 'INFO')
+MAKE_ASYNC = getenv('MAKE_ASYNC', False)
 TIME_COMP = getenv('TIME_COMP', True)
 
 
 def compute_execution_time(method):
-    def execute(self, *args, **kwargs):
-        start = perf_counter()
-        execution = method(self, *args, **kwargs)
-        end = perf_counter()
-        elapsed_time = round(end - start, 2)
-        self.logger.info("Execution time for {0}: {1}s".format(
-            method.__name__, elapsed_time))
+    if not asyncio.iscoroutinefunction(method):
+        @wraps(method)
+        def sync_wrapper(self, *args, **kwargs):
+            start = perf_counter()
+            execution = method(self, *args, **kwargs)
+            end = perf_counter()
+            elapsed_time = round(end - start, 2)
+            self.logger.info("Execution time for sync method {0}: {1}s".format(
+                method.__name__, elapsed_time))
 
-        return execution
+            return execution
 
-    return execute
+        return sync_wrapper
+
+    else:
+        @wraps(method)
+        async def async_wrapper(self, *args, **kwargs):
+
+            start = perf_counter()
+            result = await method(self, *args, **kwargs)
+            end = perf_counter()
+            elapsed_time = round(end - start, 2)
+            self.logger.info("Execution time for async method {0}: {1}s".format(
+                method.__name__, elapsed_time))
+            return result
+
+        return async_wrapper
 
 
 def make_async(method):
-    async def execute(*args, **kwargs):
-        return method(*args, **kwargs)
+    if not asyncio.iscoroutinefunction(method):
 
-    return execute
+        return method
+
+    else:
+        def execute_method(self, *args, **kwargs):
+            async def inner_async():
+                result = await method(self, *args, **kwargs)
+
+            return inner_async()
+
+        return execute_method
 
 
 class AsyncLoggingMeta(type):
@@ -54,12 +79,12 @@ class AsyncLoggingMeta(type):
 
             if callable(attr_value) and not attr_name.startswith("__"):
 
+                # if enable_async:
+                #     # TODO: Find a way to make this method async here.
+                #     attr_value = make_async(attr_value)
+
                 if enable_time:
                     attr_value = compute_execution_time(attr_value)
-
-                if enable_async:
-                    # TODO: Find a way to make this method async here.
-                    attr_value = attr_value
 
                 namespace[attr_name] = attr_value
 

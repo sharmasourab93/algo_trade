@@ -224,6 +224,45 @@ class MarketCalendarTools:
         return yesterday
 
     @staticmethod
+    def iterate_to_next_business_day(given_date: Union[date, str],
+                                     next_b: int = 1, in_str: bool = False) -> Union[date, str]:
+
+        leaves = [str(datetime.strptime(i, DATE_FMT).date())
+                  for i in MarketHolidays()]
+        i = 0
+        while i < next_b:
+            given_date = (given_date + Bday()).date()
+
+            i += 1
+
+        if str(given_date) in leaves:
+            given_date = (given_date + Bday()).date()
+
+        if in_str:
+            return given_date.strftime(DATE_FMT)
+
+        return given_date
+
+    @staticmethod
+    def iterate_to_previous_business_day(given_date: Union[date, str],
+                                         prev_b: int = 1, in_str: bool = False) -> Union[date, str]:
+
+        leaves = [str(datetime.strptime(i, DATE_FMT).date())
+                  for i in MarketHolidays()]
+        i = 0
+        while i < prev_b:
+            given_date = (given_date - BDay()).date()
+            i += 1
+
+        if str(given_date) in leaves:
+            given_date = (given_date - BDay()).date()
+
+        if in_str:
+            return given_date.strftime(DATE_FMT)
+
+        return given_date
+
+    @staticmethod
     def get_datetime_today_now(today_start: str = None) -> Tuple[
         datetime, datetime]:
         """

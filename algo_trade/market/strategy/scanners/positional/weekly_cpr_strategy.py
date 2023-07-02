@@ -12,10 +12,9 @@ class WeeklyCPRStrategy(CPRAbstract, metaclass=AsyncLoggingMeta):
 
     def cpr_strategy_output(self) -> pd.DataFrame:
 
-        self.logger.debug("Initialized Weekly CPR Process")
+        self.logger.info("Initialized Weekly CPR Process")
 
-        if self.yf_utils.next_day.isocalendar()[-1] == 1 or \
-                self.yf_utils.prev_day.isocalendar()[-1] == 5:
+        if self.yf_utils.prev_day.isocalendar().week != self.yf_utils.next_day.isocalendar().week:
 
             data = self.yf_utils.processed_timeframe_bhavcopy(self.nse_n)
 
@@ -31,7 +30,7 @@ class WeeklyCPRStrategy(CPRAbstract, metaclass=AsyncLoggingMeta):
                                                      ascending=self.asc)
 
             except KeyError:
-                cpr_columns.remove("con_range")
+                cpr_columns.remove("time_con_range")
                 cpr_columns.remove("purpose")
                 data = data[cpr_columns].sort_values(by=self.order_by,
                                                      ascending=self.asc)
@@ -42,6 +41,8 @@ class WeeklyCPRStrategy(CPRAbstract, metaclass=AsyncLoggingMeta):
                 "Execution of Weekly CPR Strategy Scanner Complete. "
                 "Data Shape: {0}.".format(data.shape)
             )
+
+            data = data.sort_values(by=['cpr_width'])
 
             return data.round(2)
 
