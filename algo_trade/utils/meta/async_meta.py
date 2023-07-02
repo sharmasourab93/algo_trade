@@ -1,7 +1,6 @@
 import concurrent.futures
 from os import getenv
 import asyncio
-from concurrent import futures
 import pandas as pd
 from time import perf_counter
 from functools import wraps
@@ -9,11 +8,9 @@ from algo_trade.utils.logger.log_configurator import LogConfig
 from contextlib import contextmanager
 
 ENABLE_LOGGING = getenv('LOG_ON', True)
-LOG_LEVEL = getenv('LOG_LEVEL', 'DEBUG')
-MAKE_ASYNC = getenv('MAKE_ASYNC', True)
+LOG_LEVEL = getenv('LOG_LEVEL', 'INFO')
+MAKE_ASYNC = getenv('MAKE_ASYNC', False)
 TIME_COMP = getenv('TIME_COMP', True)
-
-pool = concurrent.futures.ThreadPoolExecutor()
 
 
 def compute_execution_time(method):
@@ -44,6 +41,21 @@ def compute_execution_time(method):
             return result
 
         return async_wrapper
+
+
+def make_async(method):
+    if not asyncio.iscoroutinefunction(method):
+
+        return method
+
+    else:
+        def execute_method(self, *args, **kwargs):
+            async def inner_async():
+                result = await method(self, *args, **kwargs)
+
+            return inner_async()
+
+        return execute_method
 
 
 class AsyncLoggingMeta(type):
