@@ -74,7 +74,7 @@ class SwingVolumeScanner(SwingTradingGeneric):
         """Identifies volume difference from the previous day volume."""
 
         data = self.processor.get_period_data(
-            symbol, period="5d", interval="1d"
+            symbol, period="10d", interval="1d"
         ).reset_index()
         data.loc[:, "date"] = pd.to_datetime(data.date).apply(lambda x:
                                                               x.date())
