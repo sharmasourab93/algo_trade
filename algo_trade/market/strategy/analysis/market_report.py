@@ -196,6 +196,7 @@ class MarketReport(metaclass=AsyncLoggingMeta):
                 "\n" + "\n" + fno_secban
         
         self.write_to_text(text, self.prev_day)
+        self.telegram.send_message(text)
         
         return text
 
