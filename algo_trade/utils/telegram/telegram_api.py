@@ -19,13 +19,15 @@ def textualize_data(telegram_method):
                        order: str = "Top",
                        cols: list = None,
                        index: bool = False,
+                       tablefmt: str = 'rst',
+                       stralign: str = 'center',
                        date_format: str = "%d-%b-%Y %H:%M"):
         
         if isinstance(data, DataFrame):
             if cols is None:
                 cols = data.columns.tolist()
             
-            data = tabulate(data[cols], headers='keys', showindex=index, tablefmt='presto')
+            data = tabulate(data[cols], headers='keys', showindex=index, tablefmt=tablefmt, stralign=stralign)
             
             if additional_text is not None:
                 
