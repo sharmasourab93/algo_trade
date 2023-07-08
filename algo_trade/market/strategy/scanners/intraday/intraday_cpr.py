@@ -85,12 +85,25 @@ class IntradayStockCPRStrategy(CPRAbstract, metaclass=AsyncLoggingMeta):
         self.storing_outputs(data)
         
         return data
+    
+    def narrow_cpr_stock_selection(self):
+        
+        result = self.cpr_strategy_output()
+        
+        result = result.loc[(result.cpr == "Narrow CPR")&(result["index"]<=250), :].sort_values(
+            by=["time_con_range", "cpr_width"], ascending=False).head(20)
+        
+        result = result[["symbol", "time_con_range"]]
+        
+        self.telegram.send_message(result, additional_text="DailyNarrowCPRStocks")
+        
+        return result
 
 
 if __name__ == '__main__':
     obj = IntradayStockCPRStrategy()
     
-    result = obj.cpr_strategy_output()
+    result = obj.narrow_cpr_stock_selection()
     
     dated_ = obj.yf_utils.prev_day.strftime(DATE_FMT)
     

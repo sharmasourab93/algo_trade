@@ -9,11 +9,11 @@ from contextlib import contextmanager
 from algo_trade.utils.logger.log_configurator import LogConfig
 from algo_trade.utils.telegram import TelegramBot
 
-ENABLE_LOGGING = getenv('LOG_ON', True)
-ENABLE_TELEGRAM = getenv('ENABLE_TELEGRAM', False)
+ENABLE_LOGGING = getenv('LOG_ON', 'True') == 'True'
+ENABLE_TELEGRAM = not getenv('ENABLE_TELEGRAM', 'False') == 'False'
 LOG_LEVEL = getenv('LOG_LEVEL', 'INFO')
-MAKE_ASYNC = getenv('MAKE_ASYNC', False)
-TIME_COMP = getenv('TIME_COMP', True)
+MAKE_ASYNC = getenv('MAKE_ASYNC', 'False') == 'True'
+TIME_COMP = getenv('TIME_COMP', 'True') == 'True'
 
 
 def compute_execution_time(method):
