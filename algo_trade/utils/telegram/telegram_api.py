@@ -6,20 +6,36 @@ import asyncio
 import telegram
 from datetime import datetime
 import time
+from typing import Union, Dict, List
+from re import sub, compile
+from tabulate import tabulate
+
+MARKDOWN_SEQUENCE = r'(\.\\\+\*\?\[\^\]\$\(\)\{\}\!\<\>\|\:\-)'
 
 
 def textualize_data(telegram_method):
-    def execute_method(self, data, *,
+    def execute_method(self, data: Union[DataFrame, str], *,
+                       additional_text: str = None,
+                       order: str = "Top",
                        cols: list = None,
                        index: bool = False,
-                       na_rep: str = 'None',
                        date_format: str = "%d-%b-%Y %H:%M"):
         
         if isinstance(data, DataFrame):
             if cols is None:
                 cols = data.columns.tolist()
             
-            data = data.to_string(index=index, na_rep=na_rep, columns=cols)
+            data = tabulate(data[cols], headers='keys', showindex=index, tablefmt='presto')
+            
+            if additional_text is not None:
+                
+                additional_text = "**" + additional_text + "**"
+                
+                if order.capitalize() == "Top":
+                    data = additional_text + "\n" + data
+                
+                else:
+                    data += "\n" + additional_text
         
         telegram_method(self, data, date_format)
     
