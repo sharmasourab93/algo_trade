@@ -26,16 +26,16 @@ from algo_trade.market.strategy.constants import (
     SWING_MIN_SHARE_PRICE,
     SWING_VOLUME_DIFF,
     SWING_VOLUME_BIGBANG_ORDER,
-)
+    )
 
 
 class SwingVolumeScanner(SwingTradingGeneric):
     """SwingVolumeScanner alass allows you to identify
     trades likely to shoot up based on volume explosion.
     """
-
+    
     __name__ = "BIG-BANG VOLUME"
-
+    
     def __init__(
             self,
             tf: str = "1d",
@@ -44,38 +44,38 @@ class SwingVolumeScanner(SwingTradingGeneric):
             order_by: list = SWING_VOLUME_BIGBANG_ORDER,
             *args,
             **kwargs
-    ):
+            ):
         super(SwingVolumeScanner, self).__init__(*args, **kwargs)
-
+        
         self.timeframe = tf
         self.min_price = min_price
         self.min_pct_change = min_pct_change
         self.order_by = order_by
-
+    
     def swing_filtered_list(self) -> pd.DataFrame:
         """
         Applies conditions such as Min Price & Min % Change
         for the desired Swing Trade list.
         """
-
+        
         data = self.get_swing_trading_ready_list()
-
+        
         data = data.loc[
                (
-                       (data.close >= self.min_price)
-                       & (abs(data["pct_change"]) >= self.min_pct_change)
+                       (data.close>=self.min_price)
+                       &(abs(data["pct_change"])>=self.min_pct_change)
                ),
                :,
                ]
-
+        
         return data
-
+    
     def swing_volume_analysis_util(self, symbol: str) -> dict:
         """Identifies volume difference from the previous day volume."""
-
+        
         data = self.processor.get_period_data(
             symbol, period="10d", interval="1d"
-        ).reset_index()
+            ).reset_index()
         data.loc[:, "date"] = pd.to_datetime(data.date).apply(lambda x:
                                                               x.date())
         data["prev_volume"] = (
@@ -85,14 +85,14 @@ class SwingVolumeScanner(SwingTradingGeneric):
         data["volumebyprevvolume"] = round((data.volume /
                                             data.prev_volume), 2)
         data = data.sort_values("date", ascending=False)
-
+        
         # data["AvgRollingVolume"] = data.Volume.rolling(window=20).
         # mean().shift(-20)
-
+        
         data = data.sort_values(by="date", ascending=False)
         return {
-            symbol: data.loc[0, ["volumebyprevvolume"]].values.tolist().pop()}
-
+            symbol:data.loc[0, ["volumebyprevvolume"]].values.tolist().pop()}
+    
     def swing_volume_analysis(self, data,
                               swing_vol_diff: int = SWING_VOLUME_DIFF) -> \
             pd.DataFrame:
@@ -100,40 +100,43 @@ class SwingVolumeScanner(SwingTradingGeneric):
         Swing Volume Analysis for every stock in the list after the filtering
         conditions are applied.
         """
-
+        
         symbols = data.symbol.values.tolist()
         result = dict()
-
+        
         for iterate in map(self.swing_volume_analysis_util, symbols):
             result.update(iterate)
-
+        
         result = pd.DataFrame.from_dict(list(result.items())).rename(
-            columns={0: "symbol", 1: "volume_diff"}
-        )
-
+            columns={0:"symbol", 1:"volume_diff"}
+            )
+        
         data = pd.merge(data, result, on="symbol", how="left")
-
-        data = data.loc[data.volume_diff >= swing_vol_diff]
-
+        
+        data = data.loc[data.volume_diff>=swing_vol_diff]
+        
         return data
-
+    
     def generate_swing_output(self):
         """Generating Swing Output for Swing Volume Scanner."""
-
+        
         # 1. Receiving Filtered List of Stocks.
         data = self.swing_filtered_list()
-
+        
         # 2. Analyzing Volumes on Swing Output.
         data = self.swing_volume_analysis(data)
-
+        
         # 3. Ordering the Data per order columns.
         data = data.sort_values(by=self.order_by, ascending=False)
-
+        
         # 4. Setting the Strategy Name for the frame.
         data["Strategy"] = self.__name__
-
+        
         # 5. Sharing the Swing result File across multiple strategies.
         self.append_swing_results(data)
+        
+        self.telegram.send_message(data, cols=["symbol", "pct_change", "volume_diff"],
+                                   additional_text=self.__name__)
 
 
 if __name__ == "__main__":
