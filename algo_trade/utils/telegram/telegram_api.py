@@ -31,7 +31,8 @@ class TelegramBot(metaclass=SingletonMeta):
     
     def send_message(self, text: str, date_format: str = "%d-%b-%Y %H:%M"):
         
-        chat_id = asyncio.run(self.get_chat_id())
-        text += "\n Generated on {0}." \
-                "\n~TradeYogi".format(datetime.now().strftime(date_format))
-        asyncio.run(self.bot.send_message(text=text, chat_id=chat_id))
+        if self.telegram_enabled:
+            chat_id = asyncio.run(self.get_chat_id())
+            text += "\n Generated on {0}." \
+                    "\n~TradeYogi".format(datetime.now().strftime(date_format))
+            asyncio.run(self.bot.send_message(text=text, chat_id=chat_id))
