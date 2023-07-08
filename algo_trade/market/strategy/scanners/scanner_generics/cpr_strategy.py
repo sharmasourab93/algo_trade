@@ -33,8 +33,10 @@ class CPRAbstract(MovingAverages, PivotPoints):
         if self.vcpr_analysis:
             self.vcpr_cpr_cutoff = VCPR_ANALYSIS_CPR_CUT_OFF
     
-    def storing_outputs(self, data: pd.DataFrame):
-        output_date = self.yf_utils.prev_day.strftime(DATE_FMT)
+    def storing_outputs(self, data: pd.DataFrame, output_date=None):
+        
+        if output_date is None:
+            output_date = self.yf_utils.prev_day.strftime(DATE_FMT)
         self.yf_utils.store_strategy_output(self.STRATEGY_NAME, data, output_date)
     
     def retrieve_outputs(self, date: str = None) -> Union[None, pd.DataFrame]:

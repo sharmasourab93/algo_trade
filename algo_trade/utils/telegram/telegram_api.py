@@ -76,7 +76,7 @@ class TelegramBot(metaclass=SingletonMeta):
         """
         
         bot_updates = await self.bot.get_updates()
-        chat_id = bot_updates[1].effective_chat
+        chat_id = bot_updates[0].effective_chat
         return chat_id.id
     
     @textualize_data
